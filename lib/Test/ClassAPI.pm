@@ -11,7 +11,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '0.8';
+	$VERSION = '0.9';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -63,17 +63,22 @@ sub init {
 	$CONFIG = Config::Tiny->read_string( <DATA> )
 		or die 'Failed to load test configuration: '
 			. Config::Tiny->errstr;
-
-	# Check for a schedule, and it's structure
 	$SCHEDULE = delete $CONFIG->{_}
 		or die 'Config does not have a schedule defined';
-	foreach my $class ( keys %$SCHEDULE ) {
-		my $value = $SCHEDULE->{$class};
+
+	# Add implied schedule entries
+	foreach my $tclass ( keys %$CONFIG ) {
+		$SCHEDULE->{$tclass} ||= 'class';
+	}
+
+	# Check the schedule information
+	foreach my $tclass ( keys %$SCHEDULE ) {
+		my $value = $SCHEDULE->{$tclass};
 		unless ( $value =~ /^(?:class|abstract|interface)$/ ) {
-			die "Invalid schedule option '$value' for class '$class'";
+			die "Invalid schedule option '$value' for class '$tclass'";
 		}
-		unless ( $CONFIG->{$class} ) {
-			die "No section '[$class]' defined for schedule class";
+		unless ( $CONFIG->{$tclass} ) {
+			die "No section '[$tclass]' defined for schedule class";
 		}
 	}
 

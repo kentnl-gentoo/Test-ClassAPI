@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ClassAPI
 
+0.9  Wed Jul 21 2004
+	- Implicitly assume Module=class for any section without a plan entry
+
 0.8  Tue Jul 20 2004
 	- Fixed a bug in the way missing methods are reported
 
