@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ClassAPI
 
+0.8  Tue Jul 20 2004
+	- Fixed a bug in the way missing methods are reported
+
 0.7  Mon Jul 19 2004
 	- Ignore Exporter methods we don't overload
 
