@@ -7,8 +7,8 @@ use File::Spec::Functions qw{:ALL};
 use lib catdir( updir(), updir(), 'modules' ), # Development testing
         catdir( updir(), 'lib' );              # Installation testing
 use UNIVERSAL 'isa';
-BEGIN { $DB::single = $DB::single = 1 }
-use Test::More tests => 14;
+# BEGIN { $DB::single = $DB::single = 1 }
+use Test::More tests => 16;
 
 # Check their perl version
 BEGIN {
@@ -20,7 +20,7 @@ BEGIN {
 use_ok( 'Test::ClassAPI' );
 
 # Run a simple API test, against ourself
-Test::ClassAPI->execute;
+Test::ClassAPI->execute('complete');
 
 exit(0);
 
@@ -45,7 +45,7 @@ exit(0);
 __DATA__
 
 Test::ClassAPI=class
-Config::Tiny=abstract
+Config::Tiny=interface
 My::Config=class
 
 [Test::ClassAPI]
@@ -61,4 +61,5 @@ write_string=method
 errstr=method
 
 [My::Config]
+Config::Tiny=isa
 foo=method
