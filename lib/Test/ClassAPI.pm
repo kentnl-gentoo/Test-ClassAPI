@@ -12,7 +12,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED *DATA};
 BEGIN {
-	$VERSION = '0.2';
+	$VERSION = '0.3';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -72,7 +72,7 @@ sub execute {
 	}
 
 	# Determine the list of classes to test
-	my @classes = sort keys %$CONFIG;
+	my @classes = sort keys %$SCHEDULE;
 	@classes = grep { $SCHEDULE->{$_} ne 'interface' } @classes;
 
 	# Check that all the classes/abstracts are loaded
