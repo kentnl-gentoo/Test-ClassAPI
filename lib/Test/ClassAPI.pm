@@ -12,7 +12,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED *DATA};
 BEGIN {
-	$VERSION = '0.3';
+	$VERSION = '0.4';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -89,13 +89,15 @@ sub execute {
 
 		# Iterate over the testable entries
 		foreach my $parent ( @path ) {
-			# Find the methods to test
-			my @methods = keys %{$CONFIG->{$parent}};
-			@methods = grep { $CONFIG->{$parent}->{$_} eq 'method' } @methods;
-
-			# Test each of the methods
-			foreach my $method ( @methods ) {
-				Test::More::can_ok( $class, $method );
+			foreach my $test ( keys %{$CONFIG->{$parent}} ) {
+				my $type = $CONFIG->{$parent}->{$test};
+				if ( $type eq 'method' ) {
+					# Does the class have a method
+					Test::More::can_ok( $class, $test );
+				} elsif ( $type eq 'isa' ) {
+					# Does the class inherit from a parent
+					Test::More::ok( isa( $class, $test ), "$class isa $test" );
+				}
 			}
 		}
 	}

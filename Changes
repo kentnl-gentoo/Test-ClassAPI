@@ -1,6 +1,9 @@
 Revision history for Perl extension Test::ClassAPI
 
-0.3  Fri Apr 17 2004
+0.4  Sat Apr 17 2004
+	- Added support for the 'isa' test
+
+0.3  Fri Apr 16 2004
 	- Fixed a bug where it was testing all the entries, not just the ones in the schedule
 
 0.2  Fri Apr 16 2004
