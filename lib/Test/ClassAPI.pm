@@ -11,7 +11,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '0.9';
+	$VERSION = '1.01';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -69,7 +69,12 @@ sub init {
 	# Add implied schedule entries
 	foreach my $tclass ( keys %$CONFIG ) {
 		$SCHEDULE->{$tclass} ||= 'class';
+		foreach my $test ( keys %{$CONFIG->{$tclass}} ) {
+			next unless $CONFIG->{$tclass}->{$test} eq 'implements';
+			$SCHEDULE->{$test} ||= 'interface';
+		}
 	}
+	
 
 	# Check the schedule information
 	foreach my $tclass ( keys %$SCHEDULE ) {
@@ -94,7 +99,9 @@ sub execute {
 	$class->init unless $CONFIG;
 
 	# Handle options
-	my $CHECK_UNKNOWN_METHODS = !! scalar(grep { lc $_ eq 'complete'} @_);
+	my @options = map { lc $_ } @_;
+	my $CHECK_UNKNOWN_METHODS     = !! grep { $_ eq 'complete'   } @options;
+	my $CHECK_FUNCTION_COLLISIONS = !! grep { $_ eq 'collisions' } @options;
 
 	# Set the plan of no plan if we don't have a plan
 	unless ( Test::More->builder->has_plan ) {
@@ -118,6 +125,7 @@ sub execute {
 
 		# Iterate over the testable entries
 		my %known_methods = ();
+		my @implements = ();
 		foreach my $parent ( @path ) {
 			foreach my $test ( keys %{$CONFIG->{$parent}} ) {
 				my $type = $CONFIG->{$parent}->{$test};
@@ -129,21 +137,67 @@ sub execute {
 					# Does the class inherit from a parent
 					Test::More::ok( isa( $class, $test ), "$class isa $test" );
 				}
+				next unless $type eq 'implements';
+				
+				# When we 'implement' a class or interface,
+				# we need to check the 'method' tests within
+				# it, but not anything else. So we will add
+				# the class name to a seperate queue to be
+				# processed afterwards, ONLY if it is not
+				# already in the normal @path, or already
+				# on the seperate queue.
+				next if grep { $_ eq $test } @path;
+				next if grep { $_ eq $test } @implements;
+				push @implements, $test;
 			}
 		}
 
-		next unless $CHECK_UNKNOWN_METHODS;
-
-		# Check for unknown public methods
-		my $methods = Class::Inspector->methods( $class, 'public', 'expanded' )
-			or die "Failed to find public methods for class '$class'";
-		@$methods = grep { $_->[2] !~ /^[A-Z_]+$/ } # Internals stuff
-			grep { $_->[1] ne 'Exporter' } # Ignore Exporter methods we don't overload
-			grep { ! ($known_methods{$_->[2]} or $IGNORE{$_->[2]}) } @$methods;
-		if ( @$methods ) {
-			print STDERR join '', map { "# Found undocumented method '$_->[2]' defined at '$_->[0]'\n" } @$methods;
+		# Now, if it had any, go through and check the classes added
+		# because of any 'implements' tests
+		foreach my $parent ( @implements ) {
+			foreach my $test ( keys %{$CONFIG->{$parent}} ) {
+				my $type = $CONFIG->{$parent}->{$test};
+				if ( $type eq 'method' ) {
+					# Does the class have a method
+					$known_methods{$test}++;
+					Test::More::can_ok( $class, $test );
+				}
+			}
 		}
-		Test::More::is( scalar(@$methods), 0, "No unknown public methods in '$class'" );
+
+		if ( $CHECK_UNKNOWN_METHODS ) {
+			# Check for unknown public methods
+			my $methods = Class::Inspector->methods( $class, 'public', 'expanded' )
+				or die "Failed to find public methods for class '$class'";
+			@$methods = grep { $_->[2] !~ /^[A-Z_]+$/ } # Internals stuff
+				grep { $_->[1] ne 'Exporter' } # Ignore Exporter methods we don't overload
+				grep { ! ($known_methods{$_->[2]} or $IGNORE{$_->[2]}) } @$methods;
+			if ( @$methods ) {
+				print STDERR join '', map { "# Found undocumented method '$_->[2]' defined at '$_->[0]'\n" } @$methods;
+			}
+			Test::More::is( scalar(@$methods), 0, "No unknown public methods in '$class'" );
+		}
+
+		if ( $CHECK_FUNCTION_COLLISIONS ) {
+			# Check for methods collisions.
+			# A method collision is where
+			#
+			#     Foo::Bar->method
+			#
+			# is actually interpreted as
+			#
+			#     &Foo::Bar()->method
+			#
+			no strict 'refs';
+			my @collisions = ();
+			foreach my $symbol ( sort keys %{"${class}::"} ) {
+				next unless $symbol =~ s/::$//;
+				next unless defined *{"${class}::${symbol}"}{CODE};
+				print STDERR "Found function collision: ${class}->${symbol} clashes with ${class}::${symbol}\n";
+				push @collisions, $symbol;
+			}
+			Test::More::is( scalar(@collisions), 0, "No function/class collisions in '$class'" );
+		}
 	}
 
 	1;
@@ -161,8 +215,8 @@ Test::ClassAPI - Provides basic first-pass API testing for large class trees
 
 For many APIs with large numbers of classes, it can be very useful to be able
 to do a quick once-over to make sure that classes, methods, and inheritance
-is correct, before doing more comprehensive testing. This module aims to provide
-such a capability.
+is correct, before doing more comprehensive testing. This module aims to
+provide such a capability.
 
 =head2 Using Test::ClassAPI
 
@@ -265,15 +319,13 @@ API description, and that nothing has been "missed".
 
 Bugs should be submitted via the CPAN bug tracker, located at
 
-  http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test%3A%3AClassAPI
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test%3A%3AClassAPI>
 
 For other issues, contact the author
 
 =head1 AUTHOR
 
-    Adam Kennedy (Maintainer)
-    cpan@ali.as
-    http//ali.as/
+Adam Kennedy (Maintainer), L<http://ali.as/>, cpan@ali.as
 
 =head1 COPYRIGHT
 

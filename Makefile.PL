@@ -4,10 +4,10 @@ WriteMakefile(
 	'NAME'         => 'Test::ClassAPI',
 	'VERSION_FROM' => 'lib/Test/ClassAPI.pm',
 	'PREREQ_PM'    => {
-		File::Spec       => '0.83',
-		Test::More       => '0',
-		Class::Inspector => '1.05',
-		Config::Tiny     => '1.9',
+		'File::Spec'       => '0.83',
+		'Test::More'       => '0',
+		'Class::Inspector' => '1.06',
+		'Config::Tiny'     => '2.0',
 	},
 	($] >= 5.005) ? (
 		'AUTHOR'   => 'Adam Kennedy (cpan@ali.as)',

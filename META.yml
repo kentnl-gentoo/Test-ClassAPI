@@ -1,12 +1,12 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Test-ClassAPI
-version:      0.9
+version:      1.01
 version_from: lib/Test/ClassAPI.pm
 installdirs:  site
 requires:
-    Class::Inspector:              1.05
-    Config::Tiny:                  1.9
+    Class::Inspector:              1.06
+    Config::Tiny:                  2.0
     File::Spec:                    0.83
     Test::More:                    0
 

@@ -1,5 +1,12 @@
 Revision history for Perl extension Test::ClassAPI
 
+1.01 Fri Sep  3 2004
+	- Adding support for collision detection, via the 'collisions' option
+
+1.00 Thu Sep  2 2004
+	- Adding support for =implements, which cascades like =isa
+	  but isn't expected to obey proper inheritance.
+
 0.9  Wed Jul 21 2004
 	- Implicitly assume Module=class for any section without a plan entry
 
