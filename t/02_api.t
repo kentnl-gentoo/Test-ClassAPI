@@ -3,11 +3,16 @@
 # Self-API testing for Test::ClassAPI
 
 use strict;
+use lib ();
 use File::Spec::Functions qw{:ALL};
-use lib catdir( updir(), updir(), 'modules' ), # Development testing
-        catdir( updir(), 'lib' );              # Installation testing
-use UNIVERSAL 'isa';
-# BEGIN { $DB::single = $DB::single = 1 }
+BEGIN {
+	unless ( $ENV{HARNESS_ACTIVE} ) {
+		require FindBin;
+		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
+		lib->import( catdir( updir(), updir(), 'modules') );
+	}
+}
+
 use Test::More tests => 16;
 
 # Check their perl version

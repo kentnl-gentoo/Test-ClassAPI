@@ -6,13 +6,12 @@ package Test::ClassAPI;
 use strict;
 use UNIVERSAL 'isa';
 use Test::More       ();
-use Class::ISA       ();
 use Config::Tiny     ();
 use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '0.5';
+	$VERSION = '0.6';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -23,7 +22,26 @@ BEGIN {
 
 	# When looking for method that arn't described in the class
 	# description, we ignore anything from UNIVERSAL.
-	%IGNORE = map { $_, 1 } qw{isa can VERSION};
+	%IGNORE = map { $_, 1 } qw{isa can};
+}
+
+# Get the super path ( not including UNIVERSAL )
+# Rather than using Class::ISA, we'll use an inlined version
+# that implements the same basic algorithm, but faster.
+sub _super_path($) {
+	my $class = shift;
+	my @path  = ();
+	my @queue = ( $class );
+	my %seen  = ( $class => 1 );
+	while ( my $cl = shift @queue ) {
+		no strict 'refs';
+		push @path, $cl;
+		unshift @queue, grep { ! $seen{$_}++ }
+			map { s/^::/main::/; s/\'/::/g; $_ }
+			( @{"${cl}::ISA"} );
+	}
+
+	@path;
 }
 
 
@@ -91,8 +109,7 @@ sub execute {
 	@classes = grep { $SCHEDULE->{$_} eq 'class' } @classes;
 	foreach my $class ( @classes ) {
 		# Find all testable parents
-		my @path = ($class, Class::ISA::super_path($class));
-		@path = grep { $SCHEDULE->{$_} } @path;
+		my @path = grep { $SCHEDULE->{$_} } _super_path($class);
 
 		# Iterate over the testable entries
 		my %known_methods = ();
@@ -115,7 +132,8 @@ sub execute {
 		# Check for unknown public methods
 		my $methods = Class::Inspector->methods( $class, 'public' )
 			or die "Failed to find public methods for class '$class'";
-		@$methods = grep { ! ($IGNORE{$_} or $known_methods{$_}) } @$methods;
+		@$methods = grep { ! /^[A-Z_]+$/ } # Internals stuff
+			grep { ! ($IGNORE{$_} or $known_methods{$_}) } @$methods;
 		if ( @$methods ) {
 			print STDERR join '', map { "# Found undocumented method '$_'\n" } @$methods;
 		}

@@ -4,14 +4,13 @@ WriteMakefile(
 	'NAME'         => 'Test::ClassAPI',
 	'VERSION_FROM' => 'lib/Test/ClassAPI.pm',
 	'PREREQ_PM'    => {
-		Test::More       => 0,
-		Class::Inspector => 1.04,
-		Class::ISA       => 0,
-		Config::Tiny     => 1.6,
-		File::Spec       => 0.82,
+		File::Spec       => '0.83',
+		Test::More       => '0',
+		Class::Inspector => '1.05',
+		Config::Tiny     => '1.9',
 	},
 	($] >= 5.005) ? (
 		'AUTHOR'   => 'Adam Kennedy (cpan@ali.as)',
-		'ABSTRACT' => 'Allow bulk testing of class and method existance in APIs',
+		'ABSTRACT' => 'Allows bulk testing of class and method existance in APIs',
 	) : (),
 );
