@@ -5,8 +5,9 @@
 
 use strict;
 use lib ();
-use File::Spec::Functions qw{:ALL};
+use File::Spec::Functions ':ALL';
 BEGIN {
+	$| = 1;
 	unless ( $ENV{HARNESS_ACTIVE} ) {
 		require FindBin;
 		chdir ($FindBin::Bin = $FindBin::Bin); # Avoid a warning
@@ -14,18 +15,10 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 17;
-
-# Check their perl version
-BEGIN {
-	$| = 1;
-	ok( $] >= 5.005, "Your perl is new enough" );
-}
-
-# Does the module load
-use_ok( 'Test::ClassAPI' );
+use Test::More tests => 16;
 
 # Run a simple API test, against ourself
+use_ok( 'Test::ClassAPI' );
 Test::ClassAPI->execute('complete', 'collisions');
 
 exit(0);

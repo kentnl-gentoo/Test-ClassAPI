@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ClassAPI
 
+1.02 Sun Sep  5 2004
+	- Cleaned up unit tests
+
 1.01 Fri Sep  3 2004
 	- Adding support for collision detection, via the 'collisions' option
 

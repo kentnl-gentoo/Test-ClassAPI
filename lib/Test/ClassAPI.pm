@@ -11,7 +11,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '1.01';
+	$VERSION = '1.02';
 
 	# Config starts empty
 	$CONFIG   = undef;
