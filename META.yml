@@ -1,0 +1,15 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Test-ClassAPI
+version:      0.2
+version_from: lib/Test/ClassAPI.pm
+installdirs:  site
+requires:
+    Class::Inspector:              1.04
+    Class::ISA:                    0
+    Config::Tiny:                  1.6
+    File::Spec:                    0.82
+    Test::More:                    0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.16

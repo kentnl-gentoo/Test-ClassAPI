@@ -5,25 +5,21 @@ package Test::ClassAPI;
 
 use strict;
 use UNIVERSAL 'isa';
-use Config::Tiny;
-use Class::Inspector;
+use Test::More       ();
+use Class::ISA       ();
+use Config::Tiny     ();
+use Class::Inspector ();
+
+use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED *DATA};
 BEGIN {
-	$Test::ClassAPI::VERSION = 0.1;
-	require Test::More;
-}
+	$VERSION = '0.2';
 
+	# Config starts empty
+	$CONFIG   = undef;
+	$SCHEDULE = undef;
 
-
-
-
-# Globals
-use vars qw{$Config $executed};
-BEGIN {
-	# Start with the Config empty
-	$Config = undef;
-
-	# Because we set up the number of tests, we can only execute once
-	$executed = 0;
+	# We can only execute one
+	$EXECUTED = '';
 }
 
 
@@ -33,100 +29,89 @@ BEGIN {
 #####################################################################
 # Main Methods
 
-# Initialise the Config variable
+# Initialise the Configuration
 sub init {
 	my $class = shift;
 
-	# Get the file to use
-	*Test::ClassAPI::DATA = ( @_ and isa($_[0], 'GLOB') )
-		? shift : *main::DATA;
-
-	# Read in all the data
-	my $contents;
-	{
-		local $/ = undef;
-		$contents = <DATA>;
-	}
-
-	# Create the config object
-	$Config = Config::Tiny->read_string( $contents );
-	unless ( $Config ) {
-		die "Failed to load test configuration: "
+	# Use the script's DATA handle or one passed
+	*DATA = isa( $_[0], 'GLOB' ) ? shift : *main::DATA;
+ 
+	# Read in all the data, and create the config object
+	local $/ = undef;
+	$CONFIG = Config::Tiny->read_string( <DATA> )
+		or die 'Failed to load test configuration: '
 			. Config::Tiny->errstr;
+
+	# Check for a schedule, and it's structure
+	$SCHEDULE = delete $CONFIG->{_}
+		or die 'Config does not have a schedule defined';
+	foreach my $class ( keys %$SCHEDULE ) {
+		my $value = $SCHEDULE->{$class};
+		unless ( $value =~ /^(?:class|abstract|interface)$/ ) {
+			die "Invalid schedule option '$value' for class '$class'";
+		}
+		unless ( $CONFIG->{$class} ) {
+			die "No section '[$class]' defined for schedule class";
+		}
 	}
 
-	return 1;
+	1;
 }
 
-# Find the number of tests we will have to execute
-sub tests {
-	my $class = shift;
-	$class->init unless $Config;
-
-	# Count up the total number of first level keys,
-	# excluding the root section underscore key,
-	# and add all the second level keys.
-	my $count = scalar grep { $_ ne '_' } keys %$Config;
-	foreach my $section ( values %$Config ) {
-		$count += scalar keys %$section;
-	}
-
-	return $count;
-}
-
-
-
-
-# Execute the tests.
-# All tests are done in alphabetical order
+# Find and execute the tests
 sub execute {
 	my $class = shift;
-	die "You can only execute once, use another test script, or merge your configs" if $executed;
-	$class->init unless $Config;
+	if ( $EXECUTED ) {
+		die 'You can only execute once, use another test script';
+	}
+	$class->init unless $CONFIG;
 
-	# Check how many tests
-	my $tests = $class->tests;
-	die "Config contains no tests" unless $tests;
-
-	# Using the test count, set up the schedule
-	Test::More->import( tests => $tests );
-
-	# First execute the root tests
-	### COMPLETE THIS
-
-	# Next, check all the classes are loaded
-	my @class_list = grep { $_ ne '_' } sort keys %$Config;
-	foreach my $class ( @class_list ) {
-		# Is the class loaded
-		ok( Class::Inspector->loaded( $class ), "Class '$class' is loaded" );
+	# Set the plan of no plan if we don't have a plan
+	unless ( Test::More->builder->has_plan ) {
+		Test::More::plan( 'no_plan' );
 	}
 
-	# Next, check the remaining tests for each class
-	foreach my $class ( @class_list ) {
-		# Now check each of the methods ( as methods )
-		foreach my $name ( sort keys %{$Config->{$class}} ) {
-			my $type = $Config->{$class}->{$name};
-			if ( $type eq 'method' ) {
-				can_ok( $class, $name );
-			} elsif ( $type eq 'isa' ) {
-				ok( isa($class, $name), "$class->isa('$name');" );
+	# Determine the list of classes to test
+	my @classes = sort keys %$CONFIG;
+	@classes = grep { $SCHEDULE->{$_} ne 'interface' } @classes;
+
+	# Check that all the classes/abstracts are loaded
+	foreach my $class ( @classes ) {
+		Test::More::ok( Class::Inspector->loaded( $class ), "Class '$class' is loaded" );
+	}
+
+	# Check that all the full classes match all the required interfaces
+	@classes = grep { $SCHEDULE->{$_} eq 'class' } @classes;
+	foreach my $class ( @classes ) {
+		# Find all testable parents
+		my @path = ($class, Class::ISA::super_path($class));
+		@path = grep { $SCHEDULE->{$_} } @path;
+
+		# Iterate over the testable entries
+		foreach my $parent ( @path ) {
+			# Find the methods to test
+			my @methods = keys %{$CONFIG->{$parent}};
+			@methods = grep { $CONFIG->{$parent}->{$_} eq 'method' } @methods;
+
+			# Test each of the methods
+			foreach my $method ( @methods ) {
+				Test::More::can_ok( $class, $method );
 			}
 		}
 	}
 
-	return 1;
+	1;
 }
-
-
-
-
-
 
 1;
 
 __END__
 
-=head1 NAME - Test::ClassAPI
+=head1 NAME
+
+Test::ClassAPI - Basic class and method existance testing for large scale APIs
+
+=head1 DESCRIPTION
 
 Don't use this yet, the API definition language is CRAP...
 
@@ -142,13 +127,13 @@ None. Don't use this for anything you don't want to have to rewrite.
 
 =head1 AUTHOR
 
-    Adam Kennedy
+    Adam Kennedy (Maintainer)
     cpan@ali.as
     http//ali.as/
 
 =head1 COPYRIGHT
 
-opyright (c) 2002-2003 Adam Kennedy. All rights reserved.
+opyright (c) 2002-2004 Adam Kennedy. All rights reserved.
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

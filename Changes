@@ -1,4 +1,7 @@
 Revision history for Perl extension Test::ClassAPI
 
+0.2  Fri Apr 16 2004
+	- Converted to a possibly a better specification format
+
 0.1  Thu Apr 24 00:38:55 2003
 	- original version

@@ -1,4 +1,8 @@
-NAME - Test::ClassAPI
+NAME
+    Test::ClassAPI - Basic class and method existance testing for large
+    scale APIs
+
+DESCRIPTION
     Don't use this yet, the API definition language is CRAP...
 
     I need it uploaded for PPI tests...
@@ -10,12 +14,12 @@ TO DO
     None. Don't use this for anything you don't want to have to rewrite.
 
 AUTHOR
-        Adam Kennedy
+        Adam Kennedy (Maintainer)
         cpan@ali.as
         http//ali.as/
 
 COPYRIGHT
-    opyright (c) 2002-2003 Adam Kennedy. All rights reserved. This program
+    opyright (c) 2002-2004 Adam Kennedy. All rights reserved. This program
     is free software; you can redistribute it and/or modify it under the
     same terms as Perl itself.
 
