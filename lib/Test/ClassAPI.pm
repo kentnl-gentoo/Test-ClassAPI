@@ -11,7 +11,7 @@ use Class::Inspector ();
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '0.6';
+	$VERSION = '0.7';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -130,10 +130,11 @@ sub execute {
 		next unless $CHECK_UNKNOWN_METHODS;
 
 		# Check for unknown public methods
-		my $methods = Class::Inspector->methods( $class, 'public' )
+		my $methods = Class::Inspector->methods( $class, 'public', 'expanded' )
 			or die "Failed to find public methods for class '$class'";
-		@$methods = grep { ! /^[A-Z_]+$/ } # Internals stuff
-			grep { ! ($IGNORE{$_} or $known_methods{$_}) } @$methods;
+		@$methods = grep { $_->[2] !~ /^[A-Z_]+$/ } # Internals stuff
+			grep { $_->[1] ne 'Exporter' } # Ignore Exporter methods we don't overload
+			grep { ! ($known_methods{$_->[2]} or $IGNORE{$_->[2]}) } @$methods;
 		if ( @$methods ) {
 			print STDERR join '', map { "# Found undocumented method '$_'\n" } @$methods;
 		}

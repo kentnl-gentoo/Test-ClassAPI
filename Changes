@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ClassAPI
 
+0.7  Mon Jul 19 2004
+	- Ignore Exporter methods we don't overload
+
 0.6  Mon Jul 19 2004
 	- Removed a dependency on Class::ISA
 	- Upgraded tests to new standard
