@@ -4,14 +4,14 @@ package Test::ClassAPI;
 # Implemented as a wrapper around Test::More, Class::Inspector and Config::Tiny.
 
 use strict;
-use UNIVERSAL 'isa';
 use Test::More       ();
 use Config::Tiny     ();
 use Class::Inspector ();
+use Params::Util     '_INSTANCE';
 
 use vars qw{$VERSION $CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
-	$VERSION = '1.02';
+	$VERSION = '1.03';
 
 	# Config starts empty
 	$CONFIG   = undef;
@@ -56,7 +56,7 @@ sub init {
 	my $class = shift;
 
 	# Use the script's DATA handle or one passed
-	*DATA = isa( $_[0], 'GLOB' ) ? shift : *main::DATA;
+	*DATA = UNIVERSAL::isa( $_[0], 'GLOB' ) ? shift : *main::DATA;
  
 	# Read in all the data, and create the config object
 	local $/ = undef;
@@ -127,17 +127,26 @@ sub execute {
 		my %known_methods = ();
 		my @implements = ();
 		foreach my $parent ( @path ) {
-			foreach my $test ( keys %{$CONFIG->{$parent}} ) {
+			foreach my $test ( sort keys %{$CONFIG->{$parent}} ) {
 				my $type = $CONFIG->{$parent}->{$test};
+
+				# Does the class have a named method
 				if ( $type eq 'method' ) {
-					# Does the class have a method
 					$known_methods{$test}++;
 					Test::More::can_ok( $class, $test );
-				} elsif ( $type eq 'isa' ) {
-					# Does the class inherit from a parent
-					Test::More::ok( isa( $class, $test ), "$class isa $test" );
+					next;
 				}
-				next unless $type eq 'implements';
+
+				# Does the class inherit from a named parent
+				if ( $type eq 'isa' ) {
+					Test::More::ok( $class->isa($test), "$class isa $test" );
+					next;
+				}
+
+				unless ( $type eq 'implements' ) {
+					print "# Warning: Unknown test type '$type'";
+					next;
+				}
 				
 				# When we 'implement' a class or interface,
 				# we need to check the 'method' tests within
@@ -272,7 +281,7 @@ of either 'class', 'abstract', or 'interface'.
 
 The 'class' entry indicates a fully fledged class. That is, the class is
 tested to ensure it has been loaded, and the existance of every method listed
-in the section ( and it's superclasses ) is tested for.
+in the section ( and its superclasses ) is tested for.
 
 The 'abstract' entry indicates an abstract class, one which is part of our
 class tree, and needs to exist, but is never instantiated directly, and thus
@@ -299,7 +308,7 @@ is the name of something to test, and the value is the type of test for it.
 The 'isa' test checks inheritance, to make sure that the class the section is
 for is (by some path) a sub-class of something else. This does not have to be
 an immediate sub-class. Any class refered to (recursively) in a 'isa' test
-will have it's 'method' test entries applied to the class as well.
+will have its 'method' test entries applied to the class as well.
 
 The 'method' test is a simple method existance test, using C<UNIVERSAL::can>
 to make sure that the method exists in the class.
@@ -315,21 +324,22 @@ complete list of the entire API. This enables an additional test for each
 class to ensure that B<every> public method in the class is detailed in the
 API description, and that nothing has been "missed".
 
-=head2 SUPPORT
+=head1 SUPPORT
 
 Bugs should be submitted via the CPAN bug tracker, located at
 
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test%3A%3AClassAPI>
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test-ClassAPI>
 
-For other issues, contact the author
+For other issues, or commercial enhancement or support, contact the author.
 
 =head1 AUTHOR
 
-Adam Kennedy (Maintainer), L<http://ali.as/>, cpan@ali.as
+Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-opyright (c) 2002-2004 Adam Kennedy. All rights reserved.
+Copyright 2002 - 2007 Adam Kennedy.
+
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

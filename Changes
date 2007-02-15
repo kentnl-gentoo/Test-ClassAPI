@@ -1,5 +1,11 @@
 Revision history for Perl extension Test::ClassAPI
 
+1.03 Thu 15 Feb 2007
+	- Moving from old CVS to new SVN repository
+	- Cleaning up unit tests
+	- Updating some too-old dependencies
+	- Upgrading Makefile.PL to use Module::Install 0.64
+
 1.02 Sun Sep  5 2004
 	- Cleaned up unit tests
 

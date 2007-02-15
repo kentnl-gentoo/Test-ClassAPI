@@ -1,14 +1,17 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Test-ClassAPI
-version:      1.02
-version_from: lib/Test/ClassAPI.pm
-installdirs:  site
-requires:
-    Class::Inspector:              1.06
-    Config::Tiny:                  2.0
-    File::Spec:                    0.83
-    Test::More:                    0
-
+abstract: Provides basic first-pass API testing for large class trees
+author: Adam Kennedy <adamk@cpan.org>
+build_requires: 
+  Test::More: 0.47
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.16
+generated_by: Module::Install version 0.64
+license: perl
+name: Test-ClassAPI
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
+  Class::Inspector: 1.12
+  Config::Tiny: 2.00
+  File::Spec: 0.83
+version: 1.03
