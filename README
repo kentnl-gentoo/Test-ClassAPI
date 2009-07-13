@@ -14,32 +14,32 @@ DESCRIPTION
     script.
 
       #!/usr/bin/perl
-  
-      # Test the API for Foo::Bar
+      
+  # Test the API for Foo::Bar
       use strict;
       use Test::More 'tests' => 123; # Optional
       use Test::ClassAPI;
-  
-      # Load the API to test
+      
+  # Load the API to test
       use Foo::Bar;
-  
-      # Execute the tests
+      
+  # Execute the tests
       Test::ClassAPI->execute;
-  
-      __DATA__
-  
-      Foo::Bar::Thing=interface
+      
+  __DATA__
+      
+  Foo::Bar::Thing=interface
       Foo::Bar::Object=abstract
       Foo::Bar::Planet=class
-  
-      [Foo::Bar::Thing]
+      
+  [Foo::Bar::Thing]
       foo=method
-  
-      [Foo::Bar::Object]
+      
+  [Foo::Bar::Object]
       bar=method
       whatsit=method
-  
-      [Foo::Bar::Planet]
+      
+  [Foo::Bar::Planet]
       Foo::Bar::Object=isa
       Foo::Bar::Thing=isa
       blow_up=method
@@ -118,7 +118,7 @@ AUTHOR
     Adam Kennedy <adamk@cpan.org>
 
 COPYRIGHT
-    Copyright 2002 - 2008 Adam Kennedy.
+    Copyright 2002 - 2009 Adam Kennedy.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
