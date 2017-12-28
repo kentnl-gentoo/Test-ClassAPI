@@ -1,0 +1,6 @@
+/.ackrc
+/.build/
+!/.gitignore
+/.latest
+/Test-ClassAPI-*/
+/Test-ClassAPI-*.tar.gz

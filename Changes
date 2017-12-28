@@ -1,4 +1,8 @@
-Revision history for Perl extension Test::ClassAPI
+Revision history for Test-ClassAPI
+
+{{$NEXT}}
+        - switch packaging to Dist::Zilla, which makes the distribution
+          installable again on perl 5.27.7  (See RT#123867)
 
 1.06 2009-07-13
 	- No functional changes
