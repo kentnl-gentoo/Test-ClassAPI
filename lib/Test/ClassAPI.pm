@@ -12,7 +12,7 @@ use Config::Tiny     2.00 ();
 use Class::Inspector 1.12 ();
 use Params::Util     1.00 '_INSTANCE';
 
-our $VERSION = '1.07';
+our $VERSION = '1.08';
 
 use vars qw{$CONFIG $SCHEDULE $EXECUTED %IGNORE *DATA};
 BEGIN {
