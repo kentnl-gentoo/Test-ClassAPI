@@ -1,4 +1,5 @@
 package Test::ClassAPI;
+# ABSTRACT: Provides basic first-pass API testing for large class trees
 
 # Allows us to test class APIs in a simplified manner.
 # Implemented as a wrapper around Test::More, Class::Inspector and Config::Tiny.
@@ -218,10 +219,6 @@ sub execute {
 
 __END__
 
-=head1 NAME
-
-Test::ClassAPI - Provides basic first-pass API testing for large class trees
-
 =head1 DESCRIPTION
 
 For many APIs with large numbers of classes, it can be very useful to be able
@@ -325,27 +322,5 @@ indicates to the testing process that the API listed should be considered a
 complete list of the entire API. This enables an additional test for each
 class to ensure that B<every> public method in the class is detailed in the
 API description, and that nothing has been "missed".
-
-=head1 SUPPORT
-
-Bugs should be submitted via the CPAN bug tracker, located at
-
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test-ClassAPI>
-
-For other issues, or commercial enhancement or support, contact the author.
-
-=head1 AUTHOR
-
-Adam Kennedy E<lt>adamk@cpan.orgE<gt>
-
-=head1 COPYRIGHT
-
-Copyright 2002 - 2009 Adam Kennedy.
-
-This program is free software; you can redistribute
-it and/or modify it under the same terms as Perl itself.
-
-The full text of the license can be found in the
-LICENSE file included with this module.
 
 =cut
