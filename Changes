@@ -44,7 +44,7 @@ Revision history for Perl extension Test::ClassAPI
 	- Removed a dependency on Class::ISA
 	- Upgraded tests to new standard
 
-0.5  Unknown
+0.5  2004-06-21
 	- Added support for the 'complete' modifier
 
 0.4  2004-04-17
