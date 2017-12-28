@@ -1,6 +1,6 @@
 Revision history for Test-ClassAPI
 
-{{$NEXT}}
+1.07      2017-12-28 23:44:29Z
         - switch packaging to Dist::Zilla, which makes the distribution
           installable again on perl 5.27.7  (See RT#123867)
 
